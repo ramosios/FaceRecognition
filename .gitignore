@@ -1,0 +1,63 @@
+# Xcode
+build/
+*.xcarchive
+*.ipa
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.xccheckout
+
+# Xcode project/workspace temporary files
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+!*.xcworkspace/contents.xcworkspacedata
+
+# Swift Package Manager
+/.build/
+Packages/
+.swiftpm/
+Package.resolved
+
+# CocoaPods
+/Pods/
+/Podfile.lock
+
+# Carthage
+/Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift
+*.swiftpm
+*.swiftdoc
+*.swiftdeps
+*.o
+*.linkfilelist
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor/IDE
+.idea/
+.vscode/
+*.iml
+
+# Archives, provisioning and signing
+*.mobileprovision
+*.cer
+*.p12
+*.keychain
+
+# Secrets and environment
+.env
+.env.*
