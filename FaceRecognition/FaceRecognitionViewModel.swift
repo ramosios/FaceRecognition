@@ -4,35 +4,37 @@
 //
 //  Created by Jorge Ramos on 24/09/25.
 //
+
 import SwiftUI
 import FaceSDK
 
+@MainActor
 final class FaceRecognitionViewModel: ObservableObject {
+    @Published var isLoading = false
     @Published var showResultAlert = false
     @Published var resultMessage = ""
 
     func calculateSimilarity(firstImage: UIImage?, secondImage: UIImage?) {
-        guard let first = firstImage, let second = secondImage else {
-            DispatchQueue.main.async {
-                self.resultMessage = "Please add both images before calculating similarity."
-                self.showResultAlert = true
-            }
+        guard let firstImage = firstImage, let secondImage = secondImage else {
+            resultMessage = "Please select two images."
+            showResultAlert = true
             return
         }
 
-        let sdkImages = [
-            MatchFacesImage(image: first, imageType: .printed),
-            MatchFacesImage(image: second, imageType: .printed)
-        ]
-        let request = MatchFacesRequest(images: sdkImages)
+        isLoading = true
+
+        let firstFaceImage = MatchFacesImage(image: firstImage, imageType: .printed)
+        let secondFaceImage = MatchFacesImage(image: secondImage, imageType: .printed)
+        let request = MatchFacesRequest(images: [firstFaceImage, secondFaceImage])
 
         FaceSDKManager.matchFaces(request: request) { result in
             DispatchQueue.main.async {
+                self.isLoading = false
                 switch result {
                 case .success(let message):
                     self.resultMessage = message
                 case .failure(let error):
-                    self.resultMessage = "Error: \(error.localizedDescription)"
+                    self.resultMessage = error.localizedDescription
                 }
                 self.showResultAlert = true
             }

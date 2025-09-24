@@ -13,35 +13,47 @@ struct ContentView: View {
     @StateObject private var viewModel = FaceRecognitionViewModel()
     @State private var images: [UIImage?] = [nil, nil]
     @State private var pickerItems: [PhotosPickerItem?] = [nil, nil]
-    @State private var showResultAlert = false
-    @State private var resultMessage = ""
 
     private let slotSize = CGSize(width: 320, height: 320)
 
     var body: some View {
-        VStack(spacing: 28) {
-            VStack(spacing: 20) {
-                photosPickerSlot(index: 0)
-                photosPickerSlot(index: 1)
-            }
-            .padding()
-
-            HStack(spacing: 20) {
-                Button("Calcular Similitud") {
-                    viewModel.calculateSimilarity(firstImage: images[0], secondImage: images[1])
+        ZStack {
+            VStack(spacing: 28) {
+                VStack(spacing: 20) {
+                    photosPickerSlot(index: 0)
+                    photosPickerSlot(index: 1)
                 }
-                .buttonStyle(.borderedProminent)
+                .padding()
 
-                Button("Reset") {
-                    images = [nil, nil]
-                    pickerItems = [nil, nil]
+                HStack(spacing: 20) {
+                    Button("Calcular Similitud") {
+                        viewModel.calculateSimilarity(firstImage: images[0], secondImage: images[1])
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Button("Reset") {
+                        images = [nil, nil]
+                        pickerItems = [nil, nil]
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .alert(viewModel.resultMessage, isPresented: $viewModel.showResultAlert) {
-            Button("OK", role: .cancel) { }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .disabled(viewModel.isLoading)
+            .alert(viewModel.resultMessage, isPresented: $viewModel.showResultAlert) {
+                Button("OK", role: .cancel) { }
+            }
+
+            if viewModel.isLoading {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                ProgressView("Calculando...")
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black.opacity(0.7))
+                    .cornerRadius(10)
+            }
         }
     }
 
