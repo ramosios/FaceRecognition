@@ -10,6 +10,7 @@ import PhotosUI
 import FaceSDK
 
 struct ContentView: View {
+    @StateObject private var viewModel = FaceRecognitionViewModel()
     @State private var images: [UIImage?] = [nil, nil]
     @State private var pickerItems: [PhotosPickerItem?] = [nil, nil]
     @State private var showResultAlert = false
@@ -27,7 +28,7 @@ struct ContentView: View {
 
             HStack(spacing: 20) {
                 Button("Calcular Similitud") {
-                    calculateSimilarity()
+                    viewModel.calculateSimilarity(firstImage: images[0], secondImage: images[1])
                 }
                 .buttonStyle(.borderedProminent)
 
@@ -39,7 +40,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .alert(resultMessage, isPresented: $showResultAlert) {
+        .alert(viewModel.resultMessage, isPresented: $viewModel.showResultAlert) {
             Button("OK", role: .cancel) { }
         }
     }
@@ -99,60 +100,6 @@ struct ContentView: View {
             } catch {
                 await MainActor.run {
                     images[index] = nil
-                }
-            }
-        }
-    }
-
-    private func calculateSimilarity() {
-        guard let firstImage = images[0], let secondImage = images[1] else {
-            resultMessage = "Please add both images before calculating similarity."
-            showResultAlert = true
-            return
-        }
-        let sdkImages = [
-            MatchFacesImage(image: firstImage, imageType: .printed),
-            MatchFacesImage(image: secondImage, imageType: .printed)
-        ]
-        let request = MatchFacesRequest(images: sdkImages)
-        FaceSDK.service.matchFaces(request) { response in
-            let results = response.results
-            if !results.isEmpty {
-                let lines = results.enumerated().map { index, r -> String in
-                    let scoreText: String
-                    if let score = (r as AnyObject).value(forKey: "score") as? Double {
-                        scoreText = String(format: "%.2f", score)
-                    } else {
-                        scoreText = "N/A"
-                    }
-
-                    let simText: String
-                    if let sim = (r as AnyObject).value(forKey: "similarity") as? Double {
-                        simText = String(format: "%.2f", sim)
-                    } else {
-                        simText = "N/A"
-                    }
-
-                    return "Result \(index + 1): score \(scoreText), similarity \(simText)"
-                }
-
-                DispatchQueue.main.async {
-                    resultMessage = lines.joined(separator: "\n")
-                    showResultAlert = true
-                }
-                return
-            }
-
-            // Handle error or empty response
-            if let error = (response as AnyObject).value(forKey: "error") as? Error {
-                DispatchQueue.main.async {
-                    resultMessage = "Error: \(error.localizedDescription)"
-                    showResultAlert = true
-                }
-            } else {
-                DispatchQueue.main.async {
-                    resultMessage = "No matching results found."
-                    showResultAlert = true
                 }
             }
         }
