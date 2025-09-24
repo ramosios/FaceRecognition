@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var showResultAlert = false
     @State private var resultMessage = ""
 
+    private let slotSize = CGSize(width: 320, height: 320)
+
     var body: some View {
         VStack(spacing: 28) {
             VStack(spacing: 20) {
@@ -59,7 +61,9 @@ struct ContentView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .frame(width: slotSize.width, height: slotSize.height)
+                        .clipped()
+                        .cornerRadius(12)
                 } else {
                     VStack {
                         Image(systemName: "photo.on.rectangle")
@@ -71,7 +75,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .frame(width: 320, height: 320)
+            .frame(width: slotSize.width, height: slotSize.height)
             .contentShape(Rectangle())
             .padding(.horizontal)
         }
